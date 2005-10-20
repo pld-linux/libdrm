@@ -9,8 +9,8 @@ Source0:	http://people.freedesktop.org/~ajax/libdrm/%{name}-%{version}.tar.gz
 # Source0-md5:	2fd32375b17fa80e3a962276f98d6440
 URL:		http://dri.freedesktop.org/
 # currently uses <X11/Xlibint.h>
-BuildRequires:	XFree86-devel
-#BuildRequires:	xorg-lib-libX11-devel
+#BuildRequires:	XFree86-devel
+BuildRequires:	xorg-lib-libX11-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
