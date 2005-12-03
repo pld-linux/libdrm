@@ -1,12 +1,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl):	Interfejs przestrzeni u¿ytkownika do us³ug DRM j±dra
 Name:		libdrm
-Version:	1.0.5
+Version:	2.0
 Release:	1
 License:	MIT
 Group:		Libraries
-Source0:	http://people.freedesktop.org/~ajax/libdrm/%{name}-%{version}.tar.gz
-# Source0-md5:	e31257237969d5fc2c9e9eb4ad8110cf
+Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.gz
+# Source0-md5:	9d1aab104eb757ceeb2c1a6d38d57411
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.57
 BuildRequires:	automake
