@@ -1,13 +1,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl):	Interfejs przestrzeni u¿ytkownika do us³ug DRM j±dra
 Name:		libdrm
-Version:	2.0.1
-Release:	2
+Version:	2.0.2
+Release:	1
 License:	MIT
 Group:		Libraries
-Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.gz
-# Source0-md5:	1f4d59a4c77756b364c6f4e5665f9c27
-Patch0:		%{name}-radeon_drm.patch
+Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
+# Source0-md5:	db7f1f89d2571427d6ea1feb2466f577
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.57
 BuildRequires:	automake
@@ -46,7 +45,6 @@ Statyczna biblioteka libdrm.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %{__libtoolize}
@@ -54,7 +52,8 @@ Statyczna biblioteka libdrm.
 %{__autoconf}
 %{__autoheader}
 %{__automake}
-%configure
+%configure \
+	--enable-static
 %{__make}
 
 %install
