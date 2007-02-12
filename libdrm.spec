@@ -1,5 +1,5 @@
 Summary:	Userspace interface to kernel DRM services
-Summary(pl):	Interfejs przestrzeni uøytkownika do us≥ug DRM j±dra
+Summary(pl.UTF-8):   Interfejs przestrzeni u≈ºytkownika do us≈Çug DRM jƒÖdra
 Name:		libdrm
 Version:	2.3.0
 Release:	1
@@ -16,31 +16,31 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %description
 Userspace interface to kernel DRM services.
 
-%description -l pl
-Interfejs przestrzeni uøytkownika do us≥ug DRM j±dra.
+%description -l pl.UTF-8
+Interfejs przestrzeni u≈ºytkownika do us≈Çug DRM jƒÖdra.
 
 %package devel
 Summary:	Header files for libdrm library
-Summary(pl):	Pliki nag≥Ûwkowe biblioteki libdrm
+Summary(pl.UTF-8):   Pliki nag≈Ç√≥wkowe biblioteki libdrm
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 
 %description devel
 Header files for libdrm library.
 
-%description devel -l pl
-Pliki nag≥Ûwkowe biblioteki libdrm.
+%description devel -l pl.UTF-8
+Pliki nag≈Ç√≥wkowe biblioteki libdrm.
 
 %package static
 Summary:	Static libdrm library
-Summary(pl):	Statyczna biblioteka libdrm
+Summary(pl.UTF-8):   Statyczna biblioteka libdrm
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{version}-%{release}
 
 %description static
 Static libdrm library.
 
-%description static -l pl
+%description static -l pl.UTF-8
 Statyczna biblioteka libdrm.
 
 %prep
