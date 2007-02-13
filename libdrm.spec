@@ -1,5 +1,5 @@
 Summary:	Userspace interface to kernel DRM services
-Summary(pl.UTF-8):   Interfejs przestrzeni użytkownika do usług DRM jądra
+Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
 Version:	2.3.0
 Release:	1
@@ -21,7 +21,7 @@ Interfejs przestrzeni użytkownika do usług DRM jądra.
 
 %package devel
 Summary:	Header files for libdrm library
-Summary(pl.UTF-8):   Pliki nagłówkowe biblioteki libdrm
+Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki libdrm
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 
@@ -33,7 +33,7 @@ Pliki nagłówkowe biblioteki libdrm.
 
 %package static
 Summary:	Static libdrm library
-Summary(pl.UTF-8):   Statyczna biblioteka libdrm
+Summary(pl.UTF-8):	Statyczna biblioteka libdrm
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{version}-%{release}
 
