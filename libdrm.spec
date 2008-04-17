@@ -1,12 +1,14 @@
+%define	snap	20080417
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.3.0
-Release:	1
+Version:	2.3.1
+Release:	0.%{snap}.1
 License:	MIT
 Group:		Libraries
-Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	01a1e1ee0268a2403db42fa630036ab2
+# Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
+Source0:	%{name}-%{snap}.tar.bz2
+# Source0-md5:	cc541ee3219ce96d286f330797984329
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.57
 BuildRequires:	automake
@@ -44,7 +46,7 @@ Static libdrm library.
 Statyczna biblioteka libdrm.
 
 %prep
-%setup -q
+%setup -q -n libdrm
 
 %build
 %{__libtoolize}
