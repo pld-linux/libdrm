@@ -71,13 +71,14 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libdrm.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libdrm.so.2
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libdrm.so
 %{_libdir}/libdrm.la
-%{_includedir}/*.h
 %{_includedir}/drm
+%{_includedir}/xf86drm.h
 %{_pkgconfigdir}/libdrm.pc
 
 %files static
