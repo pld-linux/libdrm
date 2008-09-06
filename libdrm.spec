@@ -1,8 +1,8 @@
-%define	snap	20080417
+%define	snap	20080811
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.3.1
+Version:	2.4.0
 Release:	0.%{snap}.1
 License:	MIT
 Group:		Libraries
@@ -10,6 +10,10 @@ Group:		Libraries
 Source0:	%{name}-%{snap}.tar.bz2
 # Source0-md5:	cc541ee3219ce96d286f330797984329
 URL:		http://dri.freedesktop.org/
+Patch0:		%{name}-make-dri-perms-okay.patch
+Patch1:		%{name}-2.4.0-no-bc.patch
+Patch2:		%{name}-wait-udev.patch
+Patch3:		%{name}-2.4.0-no-freaking-mknod.patch
 BuildRequires:	autoconf >= 2.57
 BuildRequires:	automake
 BuildRequires:	libtool
@@ -46,7 +50,11 @@ Static libdrm library.
 Statyczna biblioteka libdrm.
 
 %prep
-%setup -q -n libdrm
+%setup -q -n libdrm-%{snap}
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
+#%patch3 -p1
 
 %build
 %{__libtoolize}
@@ -63,6 +71,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
+install libdrm/xf86mm.h $RPM_BUILD_ROOT%{_includedir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -72,6 +81,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
+%ghost %attr(755,root,root) %{_libdir}/libdrm.so.2
 %attr(755,root,root) %{_libdir}/libdrm.so.*.*.*
 
 %files devel
