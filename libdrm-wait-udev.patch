@@ -1,0 +1,68 @@
+diff --git a/configure.ac b/configure.ac
+index 1cf877d..0cf0974 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -34,6 +34,9 @@ AC_SYS_LARGEFILE
+ 
+ pkgconfigdir=${libdir}/pkgconfig
+ AC_SUBST(pkgconfigdir)
++AC_ARG_ENABLE(udev,	AS_HELP_STRING([--enable-udev],
++				[Enable support for using udev instead of mknod (default: disabled)]),
++				[UDEV=$enableval], [UDEV=no])
+ 
+ 
+ dnl ===========================================================================
+@@ -101,6 +104,10 @@ AC_CACHE_CHECK([for supported warning flags], libdrm_cv_warn_cflags, [
+ 	AC_MSG_CHECKING([which warning flags were supported])])
+ WARN_CFLAGS="$libdrm_cv_warn_cflags"
+ 
++if test "x$UDEV" = xyes; then
++	AC_DEFINE(UDEV, 1, [Have UDEV support])
++fi
++
+ AC_SUBST(WARN_CFLAGS)
+ AC_OUTPUT([
+ 	Makefile
+diff --git a/libdrm/xf86drm.c b/libdrm/xf86drm.c
+index 150dd5f..5d8819a 100644
+--- a/libdrm/xf86drm.c
++++ b/libdrm/xf86drm.c
+@@ -297,6 +297,7 @@ static int drmOpenDevice(long dev, int minor)
+ 	group = (serv_group >= 0) ? serv_group : DRM_DEV_GID;
+     }
+ 
++#if !defined(UDEV)
+     if (stat(DRM_DIR_NAME, &st)) {
+ 	if (!isroot)
+ 	    return DRM_ERR_NOT_ROOT;
+@@ -317,6 +318,30 @@ static int drmOpenDevice(long dev, int minor)
+ 	chown(buf, user, group);
+ 	chmod(buf, devmode);
+     }
++#else
++    /* if we modprobed then wait for udev */
++    {
++	int udev_count = 0;
++wait_for_udev:
++        if (stat(DRM_DIR_NAME, &st)) {
++		usleep(20);
++		udev_count++;
++
++		if (udev_count == 50)
++			return -1;
++		goto wait_for_udev;
++	}
++
++    	if (stat(buf, &st)) {
++		usleep(20);
++		udev_count++;
++
++		if (udev_count == 50)
++			return -1;
++		goto wait_for_udev;
++    	}
++    }
++#endif
+ 
+     fd = open(buf, O_RDWR, 0);
+     drmMsg("drmOpenDevice: open result is %d, (%s)\n",
