@@ -1,4 +1,4 @@
-%define	snap	20080811
+%define	snap	20080814
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
