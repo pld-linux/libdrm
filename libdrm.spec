@@ -8,7 +8,7 @@ License:	MIT
 Group:		Libraries
 # Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
 Source0:	%{name}-%{snap}.tar.bz2
-# Source0-md5:	43ebfba0a885e8d8ae1286ba0149d3fa
+# Source0-md5:	2af5325c8ae923a7cbaea3671bc7b969
 URL:		http://dri.freedesktop.org/
 Patch0:		%{name}-make-dri-perms-okay.patch
 Patch1:		%{name}-2.4.0-no-bc.patch
