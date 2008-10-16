@@ -1,12 +1,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.3.1
+Version:	2.4.0
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	620fe7dd02c3236c3e9881a3a238173d
+# Source0-md5:	3ab868dd3e4622bf49ca194c62a1fded
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.57
 BuildRequires:	automake
@@ -72,15 +72,21 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libdrm.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm.so.2
+%attr(755,root,root) %{_libdir}/libdrm_intel.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libdrm_intel.so.1
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libdrm.so
+%attr(755,root,root) %{_libdir}/libdrm_intel.so
 %{_libdir}/libdrm.la
+%{_libdir}/libdrm_intel.la
 %{_includedir}/drm
+%{_includedir}/intel_bufmgr.h
 %{_includedir}/xf86drm.h
 %{_pkgconfigdir}/libdrm.pc
 
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/libdrm.a
+%{_libdir}/libdrm_intel.a
