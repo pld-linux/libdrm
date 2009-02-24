@@ -1,12 +1,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.4
+Version:	2.4.5
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	c183ee614b25f61ea325d57882a2fab2
+# Source0-md5:	0d09025f069ff1a986cf3339e51908b3
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.57
 BuildRequires:	automake
@@ -86,6 +86,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/xf86drm.h
 %{_includedir}/xf86drmMode.h
 %{_pkgconfigdir}/libdrm.pc
+%{_pkgconfigdir}/libdrm_intel.pc
 
 %files static
 %defattr(644,root,root,755)
