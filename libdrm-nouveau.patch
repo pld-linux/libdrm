@@ -1,0 +1,507 @@
+diff -urN libdrm-2.4.5.org/libdrm/nouveau/Makefile.am libdrm-2.4.5/libdrm/nouveau/Makefile.am
+--- libdrm-2.4.5.org/libdrm/nouveau/Makefile.am	2009-02-11 01:09:35.000000000 +0100
++++ libdrm-2.4.5/libdrm/nouveau/Makefile.am	2009-03-26 09:53:25.000000000 +0100
+@@ -19,7 +19,9 @@
+ 			    nouveau_bo.c \
+ 			    nouveau_resource.c \
+ 			    nouveau_dma.c \
+-			    nouveau_fence.c
++			    nouveau_fence.c \
++			    nouveau_dma.h \
++			    nouveau_private.h
+ 
+ libdrm_nouveaucommonincludedir = ${includedir}/nouveau
+ libdrm_nouveaucommoninclude_HEADERS = \
+diff -urN libdrm-2.4.5.org/libdrm/nouveau/nouveau_bo.c libdrm-2.4.5/libdrm/nouveau/nouveau_bo.c
+--- libdrm-2.4.5.org/libdrm/nouveau/nouveau_bo.c	2009-02-11 01:09:35.000000000 +0100
++++ libdrm-2.4.5/libdrm/nouveau/nouveau_bo.c	2009-03-26 09:53:25.000000000 +0100
+@@ -347,24 +347,25 @@
+ 	if (!bo || !handle)
+ 		return -EINVAL;
+ 
+-	if (!nvdev->mm_enabled)
+-		return -ENODEV;
+-
+ 	if (!nvbo->global_handle) {
+ 		struct drm_gem_flink req;
+  
+ 		ret = nouveau_bo_kalloc(nvbo, NULL);
+ 		if (ret)
+ 			return ret;
+- 
+-		req.handle = nvbo->handle;
+-		ret = ioctl(nvdev->fd, DRM_IOCTL_GEM_FLINK, &req);
+-		if (ret) {
+-			nouveau_bo_kfree(nvbo);
+-			return ret;
++
++		if (nvdev->mm_enabled) {
++			req.handle = nvbo->handle;
++			ret = ioctl(nvdev->fd, DRM_IOCTL_GEM_FLINK, &req);
++			if (ret) {
++				nouveau_bo_kfree(nvbo);
++				return ret;
++			}
++	 
++			nvbo->global_handle = req.name;
++		} else {
++			nvbo->global_handle = nvbo->offset;
+ 		}
+- 
+-		nvbo->global_handle = req.name;
+ 	}
+  
+ 	*handle = nvbo->global_handle;
+@@ -412,6 +413,8 @@
+ {
+ 	struct nouveau_bo_priv *nvbo = priv;
+ 
++	nouveau_fence_ref(NULL, &nvbo->fence);
++	nouveau_fence_ref(NULL, &nvbo->wr_fence);
+ 	nouveau_bo_kfree(nvbo);
+ 	free(nvbo);
+ }
+diff -urN libdrm-2.4.5.org/libdrm/nouveau/nouveau_device.c libdrm-2.4.5/libdrm/nouveau/nouveau_device.c
+--- libdrm-2.4.5.org/libdrm/nouveau/nouveau_device.c	2009-02-21 18:54:48.000000000 +0100
++++ libdrm-2.4.5/libdrm/nouveau/nouveau_device.c	2009-03-26 09:53:25.000000000 +0100
+@@ -76,6 +76,22 @@
+ 	}
+ 	nvdev->base.vm_vram_base = value;
+ 
++	ret = nouveau_device_get_param(&nvdev->base,
++				       NOUVEAU_GETPARAM_FB_SIZE, &value);
++	if (ret) {
++		nouveau_device_close((void *)&nvdev);
++		return ret;
++	}
++	nvdev->vram_aper_size = value;
++
++	ret = nouveau_device_get_param(&nvdev->base,
++				       NOUVEAU_GETPARAM_AGP_SIZE, &value);
++	if (ret) {
++		nouveau_device_close((void *)&nvdev);
++		return ret;
++	}
++	nvdev->gart_aper_size = value;
++
+ 	ret = nouveau_bo_init(&nvdev->base);
+ 	if (ret) {
+ 		nouveau_device_close((void *)&nvdev);
+@@ -128,7 +144,7 @@
+ {
+ 	struct nouveau_device_priv *nvdev;
+ 
+-	if (dev || !*dev)
++	if (!dev || !*dev)
+ 		return;
+ 	nvdev = nouveau_device(*dev);
+ 	*dev = NULL;
+diff -urN libdrm-2.4.5.org/libdrm/nouveau/nouveau_dma.h libdrm-2.4.5/libdrm/nouveau/nouveau_dma.h
+--- libdrm-2.4.5.org/libdrm/nouveau/nouveau_dma.h	1970-01-01 01:00:00.000000000 +0100
++++ libdrm-2.4.5/libdrm/nouveau/nouveau_dma.h	2009-03-26 09:53:25.000000000 +0100
+@@ -0,0 +1,154 @@
++/*
++ * Copyright 2007 Nouveau Project
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
++ * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++
++#ifndef __NOUVEAU_DMA_H__
++#define __NOUVEAU_DMA_H__
++
++#include <string.h>
++#include "nouveau_private.h"
++
++//#define NOUVEAU_DMA_DEBUG
++//#define NOUVEAU_DMA_TRACE
++//#define NOUVEAU_DMA_DUMP_POSTRELOC_PUSHBUF
++#if defined(__amd64__)
++#define NOUVEAU_DMA_BARRIER asm volatile("lock; addl $0,0(%%rsp)" ::: "memory")
++#elif defined(__i386__)
++#define NOUVEAU_DMA_BARRIER asm volatile("lock; addl $0,0(%%esp)" ::: "memory")
++#else
++#define NOUVEAU_DMA_BARRIER
++#endif
++#define NOUVEAU_DMA_TIMEOUT 2000
++#define NOUVEAU_TIME_MSEC() 0
++#define RING_SKIPS 8
++
++extern int  nouveau_dma_wait(struct nouveau_channel *chan, unsigned size);
++extern void nouveau_dma_subc_bind(struct nouveau_grobj *);
++extern void nouveau_dma_channel_init(struct nouveau_channel *);
++extern void nouveau_dma_kickoff(struct nouveau_channel *);
++
++#ifdef NOUVEAU_DMA_DEBUG
++static char faulty[1024];
++#endif
++
++static inline void
++nouveau_dma_out(struct nouveau_channel *chan, uint32_t data)
++{
++	struct nouveau_channel_priv *nvchan = nouveau_channel(chan);
++	struct nouveau_dma_priv *dma = nvchan->dma;
++
++#ifdef NOUVEAU_DMA_DEBUG
++	if (dma->push_free == 0) {
++		printf("No space left in packet at %s\n", faulty);
++		return;
++	}
++	dma->push_free--;
++#endif
++#ifdef NOUVEAU_DMA_TRACE
++	{
++		uint32_t offset = (dma->cur << 2) + dma->base;
++		printf("\tOUT_RING %d/0x%08x -> 0x%08x\n",
++		       nvchan->drm.channel, offset, data);
++	}
++#endif
++	nvchan->pushbuf[dma->cur + (dma->base - nvchan->drm.put_base)/4] = data;
++	dma->cur++;
++}
++
++static inline void
++nouveau_dma_outp(struct nouveau_channel *chan, uint32_t *ptr, int size)
++{
++	struct nouveau_channel_priv *nvchan = nouveau_channel(chan);
++	struct nouveau_dma_priv *dma = nvchan->dma;
++	(void)dma;
++
++#ifdef NOUVEAU_DMA_DEBUG
++	if (dma->push_free < size) {
++		printf("Packet too small.  Free=%d, Need=%d\n",
++		       dma->push_free, size);
++		return;
++	}
++#endif
++#ifdef NOUVEAU_DMA_TRACE
++	while (size--) {
++		nouveau_dma_out(chan, *ptr);
++		ptr++;
++	}
++#else
++	memcpy(&nvchan->pushbuf[dma->cur], ptr, size << 2);
++#ifdef NOUVEAU_DMA_DEBUG
++	dma->push_free -= size;
++#endif
++	dma->cur += size;
++#endif
++}
++
++static inline void
++nouveau_dma_space(struct nouveau_channel *chan, unsigned size)
++{
++	struct nouveau_channel_priv *nvchan = nouveau_channel(chan);
++	struct nouveau_dma_priv *dma = nvchan->dma;
++
++	if (dma->free < size) {
++		if (nouveau_dma_wait(chan, size) && chan->hang_notify)
++			chan->hang_notify(chan);
++	}
++	dma->free -= size;
++#ifdef NOUVEAU_DMA_DEBUG
++	dma->push_free = size;
++#endif
++}
++
++static inline void
++nouveau_dma_begin(struct nouveau_channel *chan, struct nouveau_grobj *grobj,
++		  int method, int size, const char* file, int line)
++{
++	struct nouveau_channel_priv *nvchan = nouveau_channel(chan);
++	struct nouveau_dma_priv *dma = nvchan->dma;
++	(void)dma;
++
++#ifdef NOUVEAU_DMA_TRACE
++	printf("BEGIN_RING %d/%08x/%d/0x%04x/%d\n", nvchan->drm.channel,
++	       grobj->handle, grobj->subc, method, size);
++#endif
++
++#ifdef NOUVEAU_DMA_DEBUG
++	if (dma->push_free) {
++		printf("Previous packet incomplete: %d left at %s\n",
++		       dma->push_free, faulty);
++		return;
++	}
++	sprintf(faulty,"%s:%d",file,line);
++#endif
++
++	nouveau_dma_space(chan, (size + 1));
++	nouveau_dma_out(chan, (size << 18) | (grobj->subc << 13) | method);
++}
++
++#define RING_SPACE_CH(ch,sz)         nouveau_dma_space((ch), (sz))
++#define BEGIN_RING_CH(ch,gr,m,sz)    nouveau_dma_begin((ch), (gr), (m), (sz), __FUNCTION__, __LINE__ )
++#define OUT_RING_CH(ch, data)        nouveau_dma_out((ch), (data))
++#define OUT_RINGp_CH(ch,ptr,dwords)  nouveau_dma_outp((ch), (void*)(ptr),      \
++						      (dwords))
++#define FIRE_RING_CH(ch)             nouveau_dma_kickoff((ch))
++#define WAIT_RING_CH(ch,sz)          nouveau_dma_wait((ch), (sz))
++		
++#endif
+diff -urN libdrm-2.4.5.org/libdrm/nouveau/nouveau_drmif.h libdrm-2.4.5/libdrm/nouveau/nouveau_drmif.h
+--- libdrm-2.4.5.org/libdrm/nouveau/nouveau_drmif.h	2009-02-11 01:09:35.000000000 +0100
++++ libdrm-2.4.5/libdrm/nouveau/nouveau_drmif.h	2009-03-26 09:53:25.000000000 +0100
+@@ -37,6 +37,9 @@
+ 	int needs_close;
+ 
+ 	int mm_enabled;
++/*XXX: move to nouveau_device when interface gets bumped */
++	uint64_t vram_aper_size;
++	uint64_t gart_aper_size;
+ };
+ #define nouveau_device(n) ((struct nouveau_device_priv *)(n))
+ 
+diff -urN libdrm-2.4.5.org/libdrm/nouveau/nouveau_fence.c libdrm-2.4.5/libdrm/nouveau/nouveau_fence.c
+--- libdrm-2.4.5.org/libdrm/nouveau/nouveau_fence.c	2009-02-11 01:09:35.000000000 +0100
++++ libdrm-2.4.5/libdrm/nouveau/nouveau_fence.c	2009-03-26 09:53:25.000000000 +0100
+@@ -96,22 +96,16 @@
+ int
+ nouveau_fence_ref(struct nouveau_fence *ref, struct nouveau_fence **fence)
+ {
+-	struct nouveau_fence_priv *nvfence;
+-
+ 	if (!fence)
+ 		return -EINVAL;
+ 
+-	if (*fence) {
+-		nouveau_fence_del(fence);
+-		*fence = NULL;
+-	}
++	if (ref)
++		nouveau_fence(ref)->refcount++;
+ 
+-	if (ref) {
+-		nvfence = nouveau_fence(ref);
+-		nvfence->refcount++;	
+-		*fence = &nvfence->base;
+-	}
++	if (*fence)
++		nouveau_fence_del(fence);
+ 
++	*fence = ref;
+ 	return 0;
+ }
+ 
+diff -urN libdrm-2.4.5.org/libdrm/nouveau/nouveau_private.h libdrm-2.4.5/libdrm/nouveau/nouveau_private.h
+--- libdrm-2.4.5.org/libdrm/nouveau/nouveau_private.h	1970-01-01 01:00:00.000000000 +0100
++++ libdrm-2.4.5/libdrm/nouveau/nouveau_private.h	2009-03-26 09:53:25.000000000 +0100
+@@ -0,0 +1,203 @@
++/*
++ * Copyright 2007 Nouveau Project
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
++ * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++
++#ifndef __NOUVEAU_PRIVATE_H__
++#define __NOUVEAU_PRIVATE_H__
++
++#include <stdint.h>
++#include <xf86drm.h>
++#include <nouveau_drm.h>
++
++#include "nouveau_drmif.h"
++#include "nouveau_device.h"
++#include "nouveau_channel.h"
++#include "nouveau_grobj.h"
++#include "nouveau_notifier.h"
++#include "nouveau_bo.h"
++#include "nouveau_resource.h"
++#include "nouveau_pushbuf.h"
++
++#define NOUVEAU_PUSHBUF_MAX_BUFFERS 1024
++#define NOUVEAU_PUSHBUF_MAX_RELOCS 1024
++struct nouveau_pushbuf_priv {
++	struct nouveau_pushbuf base;
++
++	int use_cal;
++	struct nouveau_bo *buffer;
++
++	unsigned *pushbuf;
++	unsigned  size;
++
++	struct drm_nouveau_gem_pushbuf_bo *buffers;
++	unsigned nr_buffers;
++	struct drm_nouveau_gem_pushbuf_reloc *relocs;
++	unsigned nr_relocs;
++
++	/*XXX: nomm */
++	struct nouveau_fence *fence;
++};
++#define nouveau_pushbuf(n) ((struct nouveau_pushbuf_priv *)(n))
++
++#define pbbo_to_ptr(o) ((uint64_t)(unsigned long)(o))
++#define ptr_to_pbbo(h) ((struct nouveau_pushbuf_bo *)(unsigned long)(h))
++#define pbrel_to_ptr(o) ((uint64_t)(unsigned long)(o))
++#define ptr_to_pbrel(h) ((struct nouveau_pushbuf_reloc *)(unsigned long)(h))
++#define bo_to_ptr(o) ((uint64_t)(unsigned long)(o))
++#define ptr_to_bo(h) ((struct nouveau_bo_priv *)(unsigned long)(h))
++
++int
++nouveau_pushbuf_init(struct nouveau_channel *);
++
++struct nouveau_dma_priv {
++	uint32_t base;
++	uint32_t max;
++	uint32_t cur;
++	uint32_t put;
++	uint32_t free;
++
++	int push_free;
++} dma;
++
++struct nouveau_channel_priv {
++	struct nouveau_channel base;
++
++	struct drm_nouveau_channel_alloc drm;
++
++	void     *notifier_block;
++
++	struct nouveau_pushbuf_priv pb;
++
++	/*XXX: nomm */
++	volatile uint32_t *user, *put, *get, *ref_cnt;
++	uint32_t *pushbuf;
++	struct nouveau_dma_priv struct_dma;
++	struct nouveau_dma_priv *dma;
++	struct nouveau_fence *fence_head;
++	struct nouveau_fence *fence_tail;
++	uint32_t fence_sequence;
++	struct nouveau_grobj *fence_grobj;
++	struct nouveau_notifier *fence_ntfy;
++};
++#define nouveau_channel(n) ((struct nouveau_channel_priv *)(n))
++
++struct nouveau_fence {
++	struct nouveau_channel *channel;
++};
++
++struct nouveau_fence_cb {
++	struct nouveau_fence_cb *next;
++	void (*func)(void *);
++	void *priv;
++};
++
++struct nouveau_fence_priv {
++	struct nouveau_fence base;
++	int refcount;
++
++	struct nouveau_fence *next;
++	struct nouveau_fence_cb *signal_cb;
++
++	uint32_t sequence;
++	int emitted;
++	int signalled;
++};
++#define nouveau_fence(n) ((struct nouveau_fence_priv *)(n))
++
++int
++nouveau_fence_new(struct nouveau_channel *, struct nouveau_fence **);
++
++int
++nouveau_fence_ref(struct nouveau_fence *, struct nouveau_fence **);
++
++int
++nouveau_fence_signal_cb(struct nouveau_fence *, void (*)(void *), void *);
++
++void
++nouveau_fence_emit(struct nouveau_fence *);
++
++int
++nouveau_fence_wait(struct nouveau_fence **);
++
++void
++nouveau_fence_flush(struct nouveau_channel *);
++
++struct nouveau_grobj_priv {
++	struct nouveau_grobj base;
++};
++#define nouveau_grobj(n) ((struct nouveau_grobj_priv *)(n))
++
++struct nouveau_notifier_priv {
++	struct nouveau_notifier base;
++
++	struct drm_nouveau_notifierobj_alloc drm;
++	volatile void *map;
++};
++#define nouveau_notifier(n) ((struct nouveau_notifier_priv *)(n))
++
++struct nouveau_bo_priv {
++	struct nouveau_bo base;
++	int refcount;
++
++	/* Buffer configuration + usage hints */
++	unsigned flags;
++	unsigned size;
++	unsigned align;
++	int user;
++
++	/* Tracking */
++	struct drm_nouveau_gem_pushbuf_bo *pending;
++	struct nouveau_channel *pending_channel;
++	int write_marker;
++
++	/* Userspace object */
++	void *sysmem;
++
++	/* Kernel object */
++	uint32_t global_handle;
++	drm_handle_t handle;
++	void *map;
++
++	/* Last known information from kernel on buffer status */
++	int pinned;
++	uint64_t offset;
++	uint32_t domain;
++
++	/*XXX: nomm stuff */
++	struct nouveau_fence *fence;
++	struct nouveau_fence *wr_fence;
++};
++#define nouveau_bo(n) ((struct nouveau_bo_priv *)(n))
++
++int
++nouveau_bo_init(struct nouveau_device *);
++
++void
++nouveau_bo_takedown(struct nouveau_device *);
++
++struct drm_nouveau_gem_pushbuf_bo *
++nouveau_bo_emit_buffer(struct nouveau_channel *, struct nouveau_bo *);
++
++int
++nouveau_bo_validate_nomm(struct nouveau_bo_priv *, uint32_t);
++
++#include "nouveau_dma.h"
++#endif
