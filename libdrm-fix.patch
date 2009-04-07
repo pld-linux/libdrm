@@ -1,0 +1,13 @@
+--- libdrm-2.4.6/tests/Makefile.am.org	2009-04-07 18:41:12.623486481 +0200
++++ libdrm-2.4.6/tests/Makefile.am	2009-04-07 18:42:22.800597469 +0200
+@@ -40,6 +40,10 @@
+ 
+ EXTRA_PROGRAMS = $(TESTS)
+ 
++else
++
++LDADD = $(top_builddir)/libdrm/libdrm.la -lrt
++
+ endif
+ 
+ CLEANFILES = $(EXTRA_PROGRAMS) $(EXTRA_LTLIBRARIES)
