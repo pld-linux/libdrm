@@ -1,14 +1,13 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.12
-Release:	3
+Version:	2.4.13
+Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	15d26219c046377d5fcb1cb37e7b03a2
+# Source0-md5:	10c92b718476239f401d9515636ca623
 Patch0:		%{name}-fix.patch
-Patch1:		%{name}-nouveau-abi-0.0.15.patch
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.57
 BuildRequires:	automake
@@ -48,7 +47,6 @@ Statyczna biblioteka libdrm.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
 
 %build
 %{__libtoolize}
