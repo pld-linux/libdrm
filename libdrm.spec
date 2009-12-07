@@ -7,7 +7,6 @@ License:	MIT
 Group:		Libraries
 Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
 # Source0-md5:	fa47a49641a8e846510566787a85cb8b
-Patch0:		%{name}-fix.patch
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.57
 BuildRequires:	automake
@@ -48,7 +47,6 @@ Statyczna biblioteka libdrm.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %{__libtoolize}
@@ -77,13 +75,13 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libdrm.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libdrm.so.?
+%attr(755,root,root) %ghost %{_libdir}/libdrm.so.2
 %attr(755,root,root) %{_libdir}/libdrm_intel.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libdrm_intel.so.?
+%attr(755,root,root) %ghost %{_libdir}/libdrm_intel.so.1
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libdrm_nouveau.so.?
+%attr(755,root,root) %ghost %{_libdir}/libdrm_nouveau.so.1
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libdrm_radeon.so.?
+%attr(755,root,root) %ghost %{_libdir}/libdrm_radeon.so.1
 
 %files devel
 %defattr(644,root,root,755)
