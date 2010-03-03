@@ -1,0 +1,11 @@
+--- libdrm-2.4.19/libkms/Makefile.am~	2010-03-02 19:10:47.000000000 +0100
++++ libdrm-2.4.19/libkms/Makefile.am	2010-03-03 21:28:13.629525972 +0100
+@@ -5,7 +5,7 @@
+ libkms_la_LTLIBRARIES = libkms.la
+ libkms_ladir = $(libdir)
+ libkms_la_LDFLAGS = -version-number 1:0:0 -no-undefined
+-libkms_la_LIBADD =
++libkms_la_LIBADD = $(top_builddir)/libdrm.la
+ 
+ #if HAVE_LIBUDEV
+ #libkms_la_LIBADD += $(LIBUDEV_LIBS)

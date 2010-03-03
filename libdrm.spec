@@ -1,12 +1,13 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.18
+Version:	2.4.19
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	d2b5fbfd37742af7d2169f7d26ce3007
+# Source0-md5:	c2699b5d8ebc9e47fb56da15f460107f
+Patch0:		%{name}-kms.patch
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.57
 BuildRequires:	automake
@@ -47,6 +48,7 @@ Statyczna biblioteka libdrm.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %{__libtoolize}
@@ -57,6 +59,7 @@ Statyczna biblioteka libdrm.
 %configure \
 	--enable-nouveau-experimental-api \
 	--enable-radeon-experimental-api \
+	--enable-vmwgfx-experimental-api \
 	--enable-static
 %{__make}
 
@@ -82,6 +85,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %ghost %{_libdir}/libdrm_nouveau.so.1
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_radeon.so.1
+%attr(755,root,root) %{_libdir}/libkms.so.*.*.*                                                                                                       
+%attr(755,root,root) %ghost %{_libdir}/libkms.so.1
 
 %files devel
 %defattr(644,root,root,755)
@@ -89,19 +94,23 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libdrm_intel.so
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so
+%attr(755,root,root) %{_libdir}/libkms.so
 %{_libdir}/libdrm.la
 %{_libdir}/libdrm_intel.la
 %{_libdir}/libdrm_nouveau.la
 %{_libdir}/libdrm_radeon.la
+%{_libdir}/libkms.la
 %{_includedir}/drm
 %{_includedir}/nouveau
 %{_includedir}/intel_bufmgr.h
+%{_includedir}/libkms
 %{_includedir}/xf86drm.h
 %{_includedir}/xf86drmMode.h
 %{_pkgconfigdir}/libdrm.pc
 %{_pkgconfigdir}/libdrm_intel.pc
 %{_pkgconfigdir}/libdrm_nouveau.pc
 %{_pkgconfigdir}/libdrm_radeon.pc
+%{_pkgconfigdir}/libkms.pc
 
 %files static
 %defattr(644,root,root,755)
@@ -109,3 +118,4 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdrm_intel.a
 %{_libdir}/libdrm_nouveau.a
 %{_libdir}/libdrm_radeon.a
+%{_libdir}/libkms.a
