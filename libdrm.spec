@@ -1,12 +1,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.19
+Version:	2.4.20
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	c2699b5d8ebc9e47fb56da15f460107f
+# Source0-md5:	3c56e03172b236e14905ef9a68ba2f97
 Patch0:		%{name}-kms.patch
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.57
@@ -100,9 +100,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdrm_nouveau.la
 %{_libdir}/libdrm_radeon.la
 %{_libdir}/libkms.la
-%{_includedir}/drm
+%{_includedir}/libdrm
 %{_includedir}/nouveau
-%{_includedir}/intel_bufmgr.h
 %{_includedir}/libkms
 %{_includedir}/xf86drm.h
 %{_includedir}/xf86drmMode.h
