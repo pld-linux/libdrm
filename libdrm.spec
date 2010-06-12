@@ -9,7 +9,7 @@ Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
 # Source0-md5:	273ed9dad986e3a931649f3d8762ff74
 Patch0:		%{name}-kms.patch
 URL:		http://dri.freedesktop.org/
-BuildRequires:	autoconf >= 2.57
+BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake
 BuildRequires:	libpthread-stubs
 BuildRequires:	libtool
@@ -57,6 +57,7 @@ Statyczna biblioteka libdrm.
 %{__autoheader}
 %{__automake}
 %configure \
+	--disable-silent-rules \
 	--enable-nouveau-experimental-api \
 	--enable-radeon-experimental-api \
 	--enable-vmwgfx-experimental-api \
@@ -85,7 +86,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %ghost %{_libdir}/libdrm_nouveau.so.1
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_radeon.so.1
-%attr(755,root,root) %{_libdir}/libkms.so.*.*.*                                                                                                       
+%attr(755,root,root) %{_libdir}/libkms.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libkms.so.1
 
 %files devel
