@@ -1,12 +1,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.25
+Version:	2.4.26
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	f53dc4c72109b17908e4113c3b8addfe
+# Source0-md5:	062569426773f69b11a47a7712bba770
 Patch0:		%{name}-kms.patch
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.60
@@ -14,6 +14,7 @@ BuildRequires:	automake
 BuildRequires:	libpthread-stubs
 BuildRequires:	libtool
 BuildRequires:	pkgconfig
+BuildRequires:	xorg-lib-libpciaccess-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -59,7 +60,6 @@ Statyczna biblioteka libdrm.
 %configure \
 	--disable-silent-rules \
 	--enable-nouveau-experimental-api \
-	--enable-radeon-experimental-api \
 	--enable-vmwgfx-experimental-api \
 	--enable-static
 %{__make}
