@@ -9,12 +9,13 @@ Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
 # Source0-md5:	062569426773f69b11a47a7712bba770
 Patch0:		%{name}-kms.patch
 URL:		http://dri.freedesktop.org/
-BuildRequires:	autoconf >= 2.60
-BuildRequires:	automake
+BuildRequires:	autoconf >= 2.63
+BuildRequires:	automake >= 1:1.10
 BuildRequires:	libpthread-stubs
-BuildRequires:	libtool
+BuildRequires:	libtool >= 2:2.2
 BuildRequires:	pkgconfig
-BuildRequires:	xorg-lib-libpciaccess-devel
+BuildRequires:	xorg-lib-libpciaccess-devel >= 0.10
+Requires:	xorg-lib-libpciaccess >= 0.10
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
