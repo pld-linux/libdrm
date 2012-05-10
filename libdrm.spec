@@ -1,12 +1,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.33
+Version:	2.4.34
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	eb2a76720af5051b1687328a2240daed
+# Source0-md5:	293cb2b31392d52caa02ab0861dfc2c9
 Patch0:		%{name}-kms.patch
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.63
@@ -60,8 +60,8 @@ Statyczna biblioteka libdrm.
 %{__automake}
 %configure \
 	--disable-silent-rules \
-	--enable-nouveau-experimental-api \
 	--enable-vmwgfx-experimental-api \
+	--enable-omap-experimental-api \
 	--enable-static
 %{__make}
 
@@ -84,7 +84,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libdrm_intel.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_intel.so.1
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libdrm_nouveau.so.1
+%attr(755,root,root) %ghost %{_libdir}/libdrm_nouveau.so.2
+%attr(755,root,root) %{_libdir}/libdrm_omap.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libdrm_omap.so.1
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_radeon.so.1
 %attr(755,root,root) %{_libdir}/libkms.so.*.*.*
@@ -95,21 +97,24 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libdrm.so
 %attr(755,root,root) %{_libdir}/libdrm_intel.so
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so
+%attr(755,root,root) %{_libdir}/libdrm_omap.so
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so
 %attr(755,root,root) %{_libdir}/libkms.so
 %{_libdir}/libdrm.la
 %{_libdir}/libdrm_intel.la
 %{_libdir}/libdrm_nouveau.la
+%{_libdir}/libdrm_omap.la
 %{_libdir}/libdrm_radeon.la
 %{_libdir}/libkms.la
 %{_includedir}/libdrm
-%{_includedir}/nouveau
 %{_includedir}/libkms
+%{_includedir}/omap
 %{_includedir}/xf86drm.h
 %{_includedir}/xf86drmMode.h
 %{_pkgconfigdir}/libdrm.pc
 %{_pkgconfigdir}/libdrm_intel.pc
 %{_pkgconfigdir}/libdrm_nouveau.pc
+%{_pkgconfigdir}/libdrm_omap.pc
 %{_pkgconfigdir}/libdrm_radeon.pc
 %{_pkgconfigdir}/libkms.pc
 
@@ -118,5 +123,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdrm.a
 %{_libdir}/libdrm_intel.a
 %{_libdir}/libdrm_nouveau.a
+%{_libdir}/libdrm_omap.a
 %{_libdir}/libdrm_radeon.a
 %{_libdir}/libkms.a
