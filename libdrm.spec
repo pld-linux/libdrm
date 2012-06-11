@@ -60,9 +60,12 @@ Statyczna biblioteka libdrm.
 %{__automake}
 %configure \
 	--disable-silent-rules \
-	--enable-vmwgfx-experimental-api \
+	--enable-static \
+%ifarch arm
+	--enable-exynos-experimental-api \
 	--enable-omap-experimental-api \
-	--enable-static
+%endif
+	--enable-vmwgfx-experimental-api
 %{__make}
 
 %install
@@ -85,10 +88,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %ghost %{_libdir}/libdrm_intel.so.1
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_nouveau.so.2
-%attr(755,root,root) %{_libdir}/libdrm_omap.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libdrm_omap.so.1
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_radeon.so.1
+%ifarch arm
+%attr(755,root,root) %{_libdir}/libdrm_omap.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libdrm_omap.so.1
+%attr(755,root,root) %{_libdir}/libdrm_exynos.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libdrm_exynos.so.1
+%endif
 %attr(755,root,root) %{_libdir}/libkms.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libkms.so.1
 
@@ -97,32 +104,41 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libdrm.so
 %attr(755,root,root) %{_libdir}/libdrm_intel.so
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so
-%attr(755,root,root) %{_libdir}/libdrm_omap.so
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so
 %attr(755,root,root) %{_libdir}/libkms.so
 %{_libdir}/libdrm.la
 %{_libdir}/libdrm_intel.la
 %{_libdir}/libdrm_nouveau.la
-%{_libdir}/libdrm_omap.la
 %{_libdir}/libdrm_radeon.la
 %{_libdir}/libkms.la
 %{_includedir}/libdrm
 %{_includedir}/libkms
-%{_includedir}/omap
 %{_includedir}/xf86drm.h
 %{_includedir}/xf86drmMode.h
 %{_pkgconfigdir}/libdrm.pc
 %{_pkgconfigdir}/libdrm_intel.pc
 %{_pkgconfigdir}/libdrm_nouveau.pc
-%{_pkgconfigdir}/libdrm_omap.pc
 %{_pkgconfigdir}/libdrm_radeon.pc
 %{_pkgconfigdir}/libkms.pc
+%ifarch arm
+%attr(755,root,root) %{_libdir}/libdrm_exynos.so
+%attr(755,root,root) %{_libdir}/libdrm_omap.so
+%{_libdir}/libdrm_exynos.la
+%{_libdir}/libdrm_omap.la
+%{_includedir}/exynos
+%{_includedir}/omap
+%{_pkgconfigdir}/libdrm_exynos.pc
+%{_pkgconfigdir}/libdrm_omap.pc
+%endif
 
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/libdrm.a
 %{_libdir}/libdrm_intel.a
 %{_libdir}/libdrm_nouveau.a
-%{_libdir}/libdrm_omap.a
 %{_libdir}/libdrm_radeon.a
+%ifarch arm
+%{_libdir}/libdrm_exynos.a
+%{_libdir}/libdrm_omap.a
+%endif
 %{_libdir}/libkms.a
