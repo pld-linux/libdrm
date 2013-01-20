@@ -52,7 +52,9 @@ Statyczna biblioteka libdrm.
 %setup -q
 
 # disable man pages for now; will be fixed in 2.4.42
+%if "%{version}" == "2.4.41"
 %{__sed} -i -e '/man\/Makefile/d' configure.ac
+%endif
 
 %build
 %{__libtoolize}
