@@ -10,8 +10,10 @@ Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.63
 BuildRequires:	automake >= 1:1.10
+BuildRequires:	docbook-dtd42-xml
 BuildRequires:	libpthread-stubs
 BuildRequires:	libtool >= 2:2.2
+BuildRequires:	libxslt-progs
 BuildRequires:	pkgconfig
 BuildRequires:	sed >= 4.0
 BuildRequires:	xorg-lib-libpciaccess-devel >= 0.10
