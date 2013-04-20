@@ -64,6 +64,7 @@ Statyczna biblioteka libdrm.
 	--enable-static \
 %ifarch arm
 	--enable-exynos-experimental-api \
+	--enable-freedreno-experimental-api \
 	--enable-omap-experimental-api \
 %endif
 	--enable-vmwgfx-experimental-api
@@ -92,10 +93,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_radeon.so.1
 %ifarch arm
-%attr(755,root,root) %{_libdir}/libdrm_omap.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libdrm_omap.so.1
 %attr(755,root,root) %{_libdir}/libdrm_exynos.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_exynos.so.1
+%attr(755,root,root) %{_libdir}/libdrm_freedreno.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libdrm_freedreno.so.1
+%attr(755,root,root) %{_libdir}/libdrm_omap.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libdrm_omap.so.1
 %endif
 %attr(755,root,root) %{_libdir}/libkms.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libkms.so.1
@@ -123,12 +126,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_pkgconfigdir}/libkms.pc
 %ifarch arm
 %attr(755,root,root) %{_libdir}/libdrm_exynos.so
+%attr(755,root,root) %{_libdir}/libdrm_freedreno.so
 %attr(755,root,root) %{_libdir}/libdrm_omap.so
 %{_libdir}/libdrm_exynos.la
+%{_libdir}/libdrm_freedreno.la
 %{_libdir}/libdrm_omap.la
 %{_includedir}/exynos
+%{_includedir}/freedreno
 %{_includedir}/omap
 %{_pkgconfigdir}/libdrm_exynos.pc
+%{_pkgconfigdir}/libdrm_freedreno.pc
 %{_pkgconfigdir}/libdrm_omap.pc
 %endif
 %{_mandir}/man3/drm*.3*
@@ -142,6 +149,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdrm_radeon.a
 %ifarch arm
 %{_libdir}/libdrm_exynos.a
+%{_libdir}/libdrm_freedreno.a
 %{_libdir}/libdrm_omap.a
 %endif
 %{_libdir}/libkms.a
