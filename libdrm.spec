@@ -1,12 +1,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.56
-Release:	2
+Version:	2.4.57
+Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	93fdb76d392ce27b23561afb8f70db81
+# Source0-md5:	88f7ddc70b6cf3b07c8441cbd424c2ff
 Patch0:		libdrm-intel-init.patch
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.63
