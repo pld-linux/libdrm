@@ -1,12 +1,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.60
+Version:	2.4.61
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	13e35a7a1cf38b4c9c0fa0f8c9be6b93
+# Source0-md5:	c3d31138d63e0edde3f5b93cd88fb93a
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.63
 BuildRequires:	automake >= 1:1.10
@@ -18,6 +18,7 @@ BuildRequires:	libxslt-progs
 BuildRequires:	pkgconfig
 BuildRequires:	sed >= 4.0
 BuildRequires:	xorg-lib-libpciaccess-devel >= 0.10
+BuildRequires:	xorg-util-util-macros >= 1.12
 Requires:	xorg-lib-libpciaccess >= 0.10
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -63,7 +64,7 @@ Statyczna biblioteka libdrm.
 %configure \
 	--disable-silent-rules \
 	--enable-static \
-%ifarch arm
+%ifarch arm aarch64
 	--enable-exynos-experimental-api \
 	--enable-freedreno-experimental-api \
 	--enable-omap-experimental-api \
@@ -94,7 +95,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %ghost %{_libdir}/libdrm_nouveau.so.2
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_radeon.so.1
-%ifarch arm
+%ifarch arm aarch64
 %attr(755,root,root) %{_libdir}/libdrm_exynos.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_exynos.so.1
 %attr(755,root,root) %{_libdir}/libdrm_freedreno.so.*.*.*
@@ -128,7 +129,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_pkgconfigdir}/libdrm_nouveau.pc
 %{_pkgconfigdir}/libdrm_radeon.pc
 %{_pkgconfigdir}/libkms.pc
-%ifarch arm
+%ifarch arm aarch64
 %attr(755,root,root) %{_libdir}/libdrm_exynos.so
 %attr(755,root,root) %{_libdir}/libdrm_freedreno.so
 %attr(755,root,root) %{_libdir}/libdrm_omap.so
@@ -156,7 +157,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdrm_intel.a
 %{_libdir}/libdrm_nouveau.a
 %{_libdir}/libdrm_radeon.a
-%ifarch arm
+%ifarch arm aarch64
 %{_libdir}/libdrm_exynos.a
 %{_libdir}/libdrm_freedreno.a
 %{_libdir}/libdrm_omap.a
