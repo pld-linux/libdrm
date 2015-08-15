@@ -1,12 +1,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.62
-Release:	2
+Version:	2.4.63
+Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	c9291bae0e5ca65d1483821d3698d3ab
+# Source0-md5:	519da97017ea0e2cbea65c972c2be26e
 URL:		http://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.63
 BuildRequires:	automake >= 1:1.10
@@ -90,6 +90,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libdrm.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm.so.2
+%attr(755,root,root) %{_libdir}/libdrm_amdgpu.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libdrm_amdgpu.so.1
 %attr(755,root,root) %{_libdir}/libdrm_intel.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_intel.so.1
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so.*.*.*
@@ -112,11 +114,13 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libdrm.so
+%attr(755,root,root) %{_libdir}/libdrm_amdgpu.so
 %attr(755,root,root) %{_libdir}/libdrm_intel.so
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so
 %attr(755,root,root) %{_libdir}/libkms.so
 %{_libdir}/libdrm.la
+%{_libdir}/libdrm_amdgpu.la
 %{_libdir}/libdrm_intel.la
 %{_libdir}/libdrm_nouveau.la
 %{_libdir}/libdrm_radeon.la
@@ -126,6 +130,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/xf86drm.h
 %{_includedir}/xf86drmMode.h
 %{_pkgconfigdir}/libdrm.pc
+%{_pkgconfigdir}/libdrm_amdgpu.pc
 %{_pkgconfigdir}/libdrm_intel.pc
 %{_pkgconfigdir}/libdrm_nouveau.pc
 %{_pkgconfigdir}/libdrm_radeon.pc
@@ -155,6 +160,7 @@ rm -rf $RPM_BUILD_ROOT
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/libdrm.a
+%{_libdir}/libdrm_amdgpu.a
 %{_libdir}/libdrm_intel.a
 %{_libdir}/libdrm_nouveau.a
 %{_libdir}/libdrm_radeon.a
