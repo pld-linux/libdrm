@@ -1,12 +1,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.69
+Version:	2.4.70
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	https://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	2cee933bdef3e10d552d97b3a8fb640f
+# Source0-md5:	920957cfe25a80efb02be9bd90bf3c1e
 URL:		https://dri.freedesktop.org/
 BuildRequires:	autoconf >= 2.63
 BuildRequires:	automake >= 1:1.10
@@ -18,7 +18,9 @@ BuildRequires:	libxslt-progs
 BuildRequires:	pkgconfig
 BuildRequires:	sed >= 4.0
 BuildRequires:	valgrind
+%ifarch %{ix86} %{x8664} x32
 BuildRequires:	xorg-lib-libpciaccess-devel >= 0.10
+%endif
 BuildRequires:	xorg-util-util-macros >= 1.12
 Requires:	xorg-lib-libpciaccess >= 0.10
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -92,8 +94,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %ghost %{_libdir}/libdrm.so.2
 %attr(755,root,root) %{_libdir}/libdrm_amdgpu.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_amdgpu.so.1
+%ifarch %{ix86} %{x8664} x32
 %attr(755,root,root) %{_libdir}/libdrm_intel.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_intel.so.1
+%endif
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_nouveau.so.2
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so.*.*.*
@@ -115,13 +119,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libdrm.so
 %attr(755,root,root) %{_libdir}/libdrm_amdgpu.so
-%attr(755,root,root) %{_libdir}/libdrm_intel.so
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so
 %attr(755,root,root) %{_libdir}/libkms.so
 %{_libdir}/libdrm.la
 %{_libdir}/libdrm_amdgpu.la
-%{_libdir}/libdrm_intel.la
 %{_libdir}/libdrm_nouveau.la
 %{_libdir}/libdrm_radeon.la
 %{_libdir}/libkms.la
@@ -131,10 +133,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/xf86drmMode.h
 %{_pkgconfigdir}/libdrm.pc
 %{_pkgconfigdir}/libdrm_amdgpu.pc
-%{_pkgconfigdir}/libdrm_intel.pc
 %{_pkgconfigdir}/libdrm_nouveau.pc
 %{_pkgconfigdir}/libdrm_radeon.pc
 %{_pkgconfigdir}/libkms.pc
+%ifarch %{ix86} %{x8664} x32
+%attr(755,root,root) %{_libdir}/libdrm_intel.so
+%{_libdir}/libdrm_intel.la
+%{_pkgconfigdir}/libdrm_intel.pc
+%endif
 %ifarch arm aarch64
 %attr(755,root,root) %{_libdir}/libdrm_exynos.so
 %attr(755,root,root) %{_libdir}/libdrm_freedreno.so
@@ -149,10 +155,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/omap
 # already included above
 #%{_includedir}/libdrm/tegra.h
+#%{_includedir}/libdrm/vc4_packet.h
+#%{_includedir}/libdrm/vc4_qpu_defines.h
 %{_pkgconfigdir}/libdrm_exynos.pc
 %{_pkgconfigdir}/libdrm_freedreno.pc
 %{_pkgconfigdir}/libdrm_omap.pc
 %{_pkgconfigdir}/libdrm_tegra.pc
+%{_pkgconfigdir}/libdrm_vc4.pc
 %endif
 %{_mandir}/man3/drm*.3*
 %{_mandir}/man7/drm*.7*
@@ -161,7 +170,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_libdir}/libdrm.a
 %{_libdir}/libdrm_amdgpu.a
+%ifarch %{ix86} %{x8664} x32
 %{_libdir}/libdrm_intel.a
+%endif
 %{_libdir}/libdrm_nouveau.a
 %{_libdir}/libdrm_radeon.a
 %ifarch arm aarch64
