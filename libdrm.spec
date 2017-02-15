@@ -67,7 +67,8 @@ Statyczna biblioteka libdrm.
 %configure \
 	--disable-silent-rules \
 	--enable-static \
-%ifarch arm aarch64
+%ifarch %{arm} aarch64
+	--enable-etnaviv-experimental-api \
 	--enable-exynos-experimental-api \
 	--enable-freedreno-experimental-api \
 	--enable-omap-experimental-api \
@@ -81,6 +82,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
+
+# obsoleted by pkg-config
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/lib*.la
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -102,7 +106,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %ghost %{_libdir}/libdrm_nouveau.so.2
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_radeon.so.1
-%ifarch arm aarch64
+%ifarch %{arm} aarch64
+%attr(755,root,root) %{_libdir}/libdrm_etnaviv.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libdrm_etnaviv.so.1
 %attr(755,root,root) %{_libdir}/libdrm_exynos.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_exynos.so.1
 %attr(755,root,root) %{_libdir}/libdrm_freedreno.so.*.*.*
@@ -122,11 +128,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so
 %attr(755,root,root) %{_libdir}/libkms.so
-%{_libdir}/libdrm.la
-%{_libdir}/libdrm_amdgpu.la
-%{_libdir}/libdrm_nouveau.la
-%{_libdir}/libdrm_radeon.la
-%{_libdir}/libkms.la
 %{_includedir}/libdrm
 %{_includedir}/libkms
 %{_includedir}/libsync.h
@@ -139,25 +140,23 @@ rm -rf $RPM_BUILD_ROOT
 %{_pkgconfigdir}/libkms.pc
 %ifarch %{ix86} %{x8664} x32
 %attr(755,root,root) %{_libdir}/libdrm_intel.so
-%{_libdir}/libdrm_intel.la
 %{_pkgconfigdir}/libdrm_intel.pc
 %endif
-%ifarch arm aarch64
+%ifarch %{arm} aarch64
+%attr(755,root,root) %{_libdir}/libdrm_etnaviv.so
 %attr(755,root,root) %{_libdir}/libdrm_exynos.so
 %attr(755,root,root) %{_libdir}/libdrm_freedreno.so
 %attr(755,root,root) %{_libdir}/libdrm_omap.so
 %attr(755,root,root) %{_libdir}/libdrm_tegra.so
-%{_libdir}/libdrm_exynos.la
-%{_libdir}/libdrm_freedreno.la
-%{_libdir}/libdrm_omap.la
-%{_libdir}/libdrm_tegra.la
 %{_includedir}/exynos
 %{_includedir}/freedreno
 %{_includedir}/omap
 # already included above
+#%{_includedir}/libdrm/etnaviv_drmif.h
 #%{_includedir}/libdrm/tegra.h
 #%{_includedir}/libdrm/vc4_packet.h
 #%{_includedir}/libdrm/vc4_qpu_defines.h
+%{_pkgconfigdir}/libdrm_etnaviv.pc
 %{_pkgconfigdir}/libdrm_exynos.pc
 %{_pkgconfigdir}/libdrm_freedreno.pc
 %{_pkgconfigdir}/libdrm_omap.pc
@@ -176,7 +175,8 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %{_libdir}/libdrm_nouveau.a
 %{_libdir}/libdrm_radeon.a
-%ifarch arm aarch64
+%ifarch %{arm} aarch64
+%{_libdir}/libdrm_etnaviv.a
 %{_libdir}/libdrm_exynos.a
 %{_libdir}/libdrm_freedreno.a
 %{_libdir}/libdrm_omap.a
