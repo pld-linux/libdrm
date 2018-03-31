@@ -22,7 +22,9 @@ BuildRequires:	valgrind
 BuildRequires:	xorg-lib-libpciaccess-devel >= 0.10
 %endif
 BuildRequires:	xorg-util-util-macros >= 1.12
+%ifarch %{ix86} %{x8664} x32
 Requires:	xorg-lib-libpciaccess >= 0.10
+%endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
