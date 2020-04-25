@@ -1,27 +1,34 @@
+#
+# Conditional build:
+%bcond_without	static_libs	# static libraries
+
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.100
+Version:	2.4.101
 Release:	1
 License:	MIT
 Group:		Libraries
-Source0:	https://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.bz2
-# Source0-md5:	f47bc87e28198ba527e6b44ffdd62f65
+Source0:	https://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.xz
+# Source0-md5:	e6a6f1b88963210b3d62acd7310a1cc7
 URL:		https://dri.freedesktop.org/
-BuildRequires:	autoconf >= 2.63
-BuildRequires:	automake >= 1:1.10
 BuildRequires:	docbook-dtd42-xml
 BuildRequires:	docbook-style-xsl-nons
-BuildRequires:	libpthread-stubs >= 0.4
-BuildRequires:	libtool >= 2:2.2
+%ifarch i386
+BuildRequires:	libatomic_ops-devel
+%endif
 BuildRequires:	libxslt-progs
+BuildRequires:	meson >= 0.43
+BuildRequires:	ninja >= 1.5
 BuildRequires:	pkgconfig
+BuildRequires:	rpmbuild(macros) >= 1.736
 BuildRequires:	sed >= 4.0
+BuildRequires:	tar >= 1:1.22
 BuildRequires:	valgrind
 %ifarch %{ix86} %{x8664} x32
 BuildRequires:	xorg-lib-libpciaccess-devel >= 0.10
 %endif
-BuildRequires:	xorg-util-util-macros >= 1.12
+BuildRequires:	xz
 %ifarch %{ix86} %{x8664} x32
 Requires:	xorg-lib-libpciaccess >= 0.10
 %endif
@@ -60,33 +67,27 @@ Statyczna biblioteka libdrm.
 %prep
 %setup -q
 
-%build
-%{__libtoolize}
-%{__aclocal}
-%{__autoconf}
-%{__autoheader}
-%{__automake}
-%configure \
-	--disable-silent-rules \
-	--enable-static \
-%ifarch %{arm} aarch64
-	--enable-etnaviv-experimental-api \
-	--enable-exynos-experimental-api \
-	--enable-freedreno-experimental-api \
-	--enable-omap-experimental-api \
-	--enable-tegra-experimental-api
+%if %{with static_libs}
+%{__sed} -i -e '/^lib.* = shared_library/ s/shared_library/library/' \
+	meson.build \
+	{amdgpu,etnaviv,exynos,freedreno,intel,libkms,nouveau,omap,radeon,tegra}/meson.build
 %endif
 
-%{__make}
+%build
+%meson build \
+%ifarch %{arm} aarch64
+	-Detnaviv=true \
+	-Dexynos=true \
+	-Domap=true \
+	-Dtegra=true
+%endif
+
+%ninja_build -C build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
-
-# obsoleted by pkg-config
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/lib*.la
+%ninja_install -C build
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -169,6 +170,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/drm*.3*
 %{_mandir}/man7/drm*.7*
 
+%if %{with static_libs}
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/libdrm.a
@@ -186,3 +188,4 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdrm_tegra.a
 %endif
 %{_libdir}/libkms.a
+%endif
