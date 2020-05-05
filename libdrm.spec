@@ -1,12 +1,13 @@
 #
 # Conditional build:
 %bcond_without	static_libs	# static libraries
+%bcond_with	valgrind	# valgrind support in libdrm
 
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
 Version:	2.4.101
-Release:	1
+Release:	2
 License:	MIT
 Group:		Libraries
 Source0:	https://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.xz
@@ -24,7 +25,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.736
 BuildRequires:	sed >= 4.0
 BuildRequires:	tar >= 1:1.22
-BuildRequires:	valgrind
+%{?with_valgrind:BuildRequires:	valgrind}
 %ifarch %{ix86} %{x8664} x32
 BuildRequires:	xorg-lib-libpciaccess-devel >= 0.10
 %endif
@@ -75,6 +76,7 @@ Statyczna biblioteka libdrm.
 
 %build
 %meson build \
+	%{!?with_valgrind:-Dvalgrind=false} \
 %ifarch %{arm} aarch64
 	-Detnaviv=true \
 	-Dexynos=true \
