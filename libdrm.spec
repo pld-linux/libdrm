@@ -15,6 +15,7 @@ Source0:	https://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.xz
 URL:		https://dri.freedesktop.org/
 BuildRequires:	docbook-dtd42-xml
 BuildRequires:	docbook-style-xsl-nons
+BuildRequires:	docutils
 %ifarch i386
 BuildRequires:	libatomic_ops-devel
 %endif
