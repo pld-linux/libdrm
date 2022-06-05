@@ -6,12 +6,12 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.110
+Version:	2.4.111
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	https://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.xz
-# Source0-md5:	ef6449de30a41ecdf69dc7ae78e676a9
+# Source0-md5:	6fc1c5b01d8568d10c7d4d84ddd8efa3
 URL:		https://dri.freedesktop.org/
 BuildRequires:	docbook-dtd42-xml
 BuildRequires:	docbook-style-xsl-nons
@@ -72,7 +72,7 @@ Statyczna biblioteka libdrm.
 %if %{with static_libs}
 %{__sed} -i -e '/^lib.* = shared_library/ s/shared_library/library/' \
 	meson.build \
-	{amdgpu,etnaviv,exynos,freedreno,intel,libkms,nouveau,omap,radeon,tegra}/meson.build
+	{amdgpu,etnaviv,exynos,freedreno,intel,nouveau,omap,radeon,tegra}/meson.build
 %endif
 
 %build
@@ -124,8 +124,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libdrm_tegra.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_tegra.so.0
 %endif
-%attr(755,root,root) %{_libdir}/libkms.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libkms.so.1
 %{_datadir}/libdrm
 
 %files devel
@@ -134,9 +132,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libdrm_amdgpu.so
 %attr(755,root,root) %{_libdir}/libdrm_nouveau.so
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so
-%attr(755,root,root) %{_libdir}/libkms.so
 %{_includedir}/libdrm
-%{_includedir}/libkms
 %{_includedir}/libsync.h
 %{_includedir}/xf86drm.h
 %{_includedir}/xf86drmMode.h
@@ -144,7 +140,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_pkgconfigdir}/libdrm_amdgpu.pc
 %{_pkgconfigdir}/libdrm_nouveau.pc
 %{_pkgconfigdir}/libdrm_radeon.pc
-%{_pkgconfigdir}/libkms.pc
 %ifarch %{ix86} %{x8664} x32
 %attr(755,root,root) %{_libdir}/libdrm_intel.so
 %{_pkgconfigdir}/libdrm_intel.pc
@@ -190,5 +185,4 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdrm_omap.a
 %{_libdir}/libdrm_tegra.a
 %endif
-%{_libdir}/libkms.a
 %endif
