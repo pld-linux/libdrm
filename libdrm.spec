@@ -6,16 +6,17 @@
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
-Version:	2.4.112
+Version:	2.4.113
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	https://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.xz
-# Source0-md5:	2db7e05df012cab16d6c547317407ff2
+# Source0-md5:	34a4dcf7eaf0c771b3b0757b5fd5f803
 URL:		https://dri.freedesktop.org/
 BuildRequires:	docbook-dtd42-xml
 BuildRequires:	docbook-style-xsl-nons
 BuildRequires:	docutils
+BuildRequires:	gcc >= 6:4.9
 %ifarch i386
 BuildRequires:	libatomic_ops-devel
 %endif
@@ -77,12 +78,12 @@ Statyczna biblioteka libdrm.
 
 %build
 %meson build \
-	%{!?with_valgrind:-Dvalgrind=false} \
+	%{!?with_valgrind:-Dvalgrind=disabled} \
 %ifarch %{arm} aarch64
-	-Detnaviv=true \
-	-Dexynos=true \
-	-Domap=true \
-	-Dtegra=true
+	-Detnaviv=enabled \
+	-Dexynos=enabled \
+	-Domap=enabled \
+	-Dtegra=enabled
 %endif
 
 %ninja_build -C build
