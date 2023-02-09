@@ -21,7 +21,7 @@ BuildRequires:	gcc >= 6:4.9
 BuildRequires:	libatomic_ops-devel
 %endif
 BuildRequires:	libxslt-progs
-BuildRequires:	meson >= 0.43
+BuildRequires:	meson >= 0.53
 BuildRequires:	ninja >= 1.5
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.736
