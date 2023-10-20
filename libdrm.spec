@@ -12,6 +12,7 @@ License:	MIT
 Group:		Libraries
 Source0:	https://dri.freedesktop.org/libdrm/%{name}-%{version}.tar.xz
 # Source0-md5:	69b17be6250b2c863411e0c5f6aefd6a
+Patch0:		%{name}-intel.patch
 URL:		https://dri.freedesktop.org/
 BuildRequires:	docbook-dtd42-xml
 BuildRequires:	docbook-style-xsl-nons
@@ -69,6 +70,7 @@ Statyczna biblioteka libdrm.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %if %{with static_libs}
 %{__sed} -i -e '/^lib.* = shared_library/ s/shared_library/library/' \
