@@ -70,14 +70,9 @@ Statyczna biblioteka libdrm.
 %prep
 %setup -q
 
-%if %{with static_libs}
-%{__sed} -i -e '/^lib.* = shared_library/ s/shared_library/library/' \
-	meson.build \
-	{amdgpu,etnaviv,exynos,freedreno,intel,nouveau,omap,radeon,tegra}/meson.build
-%endif
-
 %build
 %meson build \
+	%{!?with_static_libs:--default-library=shared} \
 	%{!?with_valgrind:-Dvalgrind=disabled} \
 %ifarch %{arm} aarch64
 	-Detnaviv=enabled \
