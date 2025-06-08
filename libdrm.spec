@@ -24,7 +24,7 @@ BuildRequires:	libxslt-progs
 BuildRequires:	meson >= 0.59
 BuildRequires:	ninja >= 1.5
 BuildRequires:	pkgconfig
-BuildRequires:	rpmbuild(macros) >= 1.736
+BuildRequires:	rpmbuild(macros) >= 2.042
 BuildRequires:	sed >= 4.0
 BuildRequires:	tar >= 1:1.22
 %{?with_valgrind:BuildRequires:	valgrind}
@@ -71,7 +71,7 @@ Statyczna biblioteka libdrm.
 %setup -q
 
 %build
-%meson build \
+%meson \
 	%{!?with_static_libs:--default-library=shared} \
 	%{!?with_valgrind:-Dvalgrind=disabled} \
 %ifarch %{arm} aarch64
@@ -81,12 +81,12 @@ Statyczna biblioteka libdrm.
 	-Dtegra=enabled
 %endif
 
-%ninja_build -C build
+%meson_build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%ninja_install -C build
+%meson_install
 
 %clean
 rm -rf $RPM_BUILD_ROOT
