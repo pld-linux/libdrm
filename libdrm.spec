@@ -2,7 +2,15 @@
 # Conditional build:
 %bcond_without	static_libs	# static libraries
 %bcond_with	valgrind	# valgrind support in libdrm
+%bcond_without	arch_arm	# ARM specific libraries (libdrm_{etnaviv,exynos,freedreno,omap,tegra,vc4})
+%bcond_without	arch_x86	# x86 specific libraries (libdrm_intel)
 
+%ifnarch %{arm} aarch64
+%undefine	with_arch_arm
+%endif
+%ifnarch %{ix86} %{x8664} x32
+%undefine	with_arch_x86
+%endif
 Summary:	Userspace interface to kernel DRM services
 Summary(pl.UTF-8):	Interfejs przestrzeni użytkownika do usług DRM jądra
 Name:		libdrm
@@ -27,12 +35,12 @@ BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 2.042
 BuildRequires:	sed >= 4.0
 BuildRequires:	tar >= 1:1.22
-%{?with_valgrind:BuildRequires:	valgrind}
-%ifarch %{ix86} %{x8664} x32
+%{?with_valgrind:BuildRequires:	valgrind >= 3.10.0}
+%if %{with arch_x86}
 BuildRequires:	xorg-lib-libpciaccess-devel >= 0.10
 %endif
 BuildRequires:	xz
-%ifarch %{ix86} %{x8664} x32
+%if %{with arch_x86}
 Requires:	xorg-lib-libpciaccess >= 0.10
 %endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -48,6 +56,9 @@ Summary:	Header files for libdrm library
 Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki libdrm
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
+%if %{with arch_x86}
+Requires:	xorg-lib-libpciaccess-devel >= 0.10
+%endif
 
 %description devel
 Header files for libdrm library.
@@ -73,13 +84,18 @@ Statyczna biblioteka libdrm.
 %build
 %meson \
 	%{!?with_static_libs:--default-library=shared} \
-	%{!?with_valgrind:-Dvalgrind=disabled} \
-%ifarch %{arm} aarch64
-	-Detnaviv=enabled \
-	-Dexynos=enabled \
-	-Domap=enabled \
-	-Dtegra=enabled
-%endif
+	-Damdgpu=enabled \
+	-Detnaviv=%{__enabled_disabled arch_arm} \
+	-Dexynos=%{__enabled_disabled arch_arm} \
+	-Dfreedreno=%{__enabled_disabled arch_arm} \
+	-Dintel=%{__enabled_disabled arch_x86} \
+	-Dman-pages=enabled \
+	-Domap=%{__enabled_disabled arch_arm} \
+	-Dradeon=enabled \
+	-Dtegra=%{__enabled_disabled arch_arm} \
+	-Dvalgrind=%{__enabled_disabled valgrind} \
+	-Dvc4=%{__enabled_disabled arch_arm} \
+	-Dvmwgfx=enabled
 
 %meson_build
 
@@ -100,7 +116,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %ghost %{_libdir}/libdrm.so.2
 %attr(755,root,root) %{_libdir}/libdrm_amdgpu.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_amdgpu.so.1
-%ifarch %{ix86} %{x8664} x32
+%if %{with arch_x86}
 %attr(755,root,root) %{_libdir}/libdrm_intel.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_intel.so.1
 %endif
@@ -108,7 +124,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %ghost %{_libdir}/libdrm_nouveau.so.2
 %attr(755,root,root) %{_libdir}/libdrm_radeon.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_radeon.so.1
-%ifarch %{arm} aarch64
+%if %{with arch_arm}
 %attr(755,root,root) %{_libdir}/libdrm_etnaviv.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdrm_etnaviv.so.1
 %attr(755,root,root) %{_libdir}/libdrm_exynos.so.*.*.*
@@ -136,11 +152,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_pkgconfigdir}/libdrm_amdgpu.pc
 %{_pkgconfigdir}/libdrm_nouveau.pc
 %{_pkgconfigdir}/libdrm_radeon.pc
-%ifarch %{ix86} %{x8664} x32
+%if %{with arch_x86}
 %attr(755,root,root) %{_libdir}/libdrm_intel.so
 %{_pkgconfigdir}/libdrm_intel.pc
 %endif
-%ifarch %{arm} aarch64
+%if %{with arch_arm}
 %attr(755,root,root) %{_libdir}/libdrm_etnaviv.so
 %attr(755,root,root) %{_libdir}/libdrm_exynos.so
 %attr(755,root,root) %{_libdir}/libdrm_freedreno.so
@@ -149,11 +165,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/exynos
 %{_includedir}/freedreno
 %{_includedir}/omap
-# already included above
-#%{_includedir}/libdrm/etnaviv_drmif.h
-#%{_includedir}/libdrm/tegra.h
-#%{_includedir}/libdrm/vc4_packet.h
-#%{_includedir}/libdrm/vc4_qpu_defines.h
 %{_pkgconfigdir}/libdrm_etnaviv.pc
 %{_pkgconfigdir}/libdrm_exynos.pc
 %{_pkgconfigdir}/libdrm_freedreno.pc
@@ -169,12 +180,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_libdir}/libdrm.a
 %{_libdir}/libdrm_amdgpu.a
-%ifarch %{ix86} %{x8664} x32
+%if %{with arch_x86}
 %{_libdir}/libdrm_intel.a
 %endif
 %{_libdir}/libdrm_nouveau.a
 %{_libdir}/libdrm_radeon.a
-%ifarch %{arm} aarch64
+%if %{with arch_arm}
 %{_libdir}/libdrm_etnaviv.a
 %{_libdir}/libdrm_exynos.a
 %{_libdir}/libdrm_freedreno.a
