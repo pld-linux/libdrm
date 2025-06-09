@@ -41,7 +41,7 @@ BuildRequires:	xorg-lib-libpciaccess-devel >= 0.10
 %endif
 BuildRequires:	xz
 %if %{with arch_x86}
-Requires:	xorg-lib-libpciaccess >= 0.10
+Requires:	xorg-lib-libpciaccess%{?_isa} >= 0.10
 %endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -55,9 +55,9 @@ Interfejs przestrzeni użytkownika do usług DRM jądra.
 Summary:	Header files for libdrm library
 Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki libdrm
 Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 %if %{with arch_x86}
-Requires:	xorg-lib-libpciaccess-devel >= 0.10
+Requires:	xorg-lib-libpciaccess-devel%{?_isa} >= 0.10
 %endif
 
 %description devel
@@ -70,7 +70,7 @@ Pliki nagłówkowe biblioteki libdrm.
 Summary:	Static libdrm library
 Summary(pl.UTF-8):	Statyczna biblioteka libdrm
 Group:		Development/Libraries
-Requires:	%{name}-devel = %{version}-%{release}
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
 
 %description static
 Static libdrm library.
